@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.KeyEvent;
 
 import com.example.two.fragment01.Fragment01;
 import com.example.two.fragment02.Fragment02;
@@ -79,12 +78,16 @@ public class MainActivity extends AppCompatActivity {
             case R.id.chooseCity:
                 Intent intent=new Intent(MainActivity.this,CityActivity.class);
                 startActivity(intent);
+                finish();
                 break;
         }
         return true;
     }
 
-
+    @Override
+    public void onNewIntent(Intent intent){
+        super.onNewIntent(intent);
+    }
     @Override
     public void onDestroy(){//在退出程序时结束服务，
         super.onDestroy();

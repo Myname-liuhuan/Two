@@ -1,8 +1,10 @@
 package com.example.two;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.two.chinaCity.County;
 import com.example.two.database.MyDataBaseHelper;
@@ -37,11 +38,14 @@ public class CityActivity extends AppCompatActivity {
     public static int PAGER_NOW=pagerProvince;//默认当前是省级视图
     public static int ITEM_POSITION=0;
     public static String WEATHER_ID="CN101010100";//北京的代号
-    public static String requestEnd;
+    public static String cityRequest;//String类型 包含有city的url,在
     public List<String> nameList=new ArrayList<>();
     public List<Integer> idList =new ArrayList<>();
     public List<String> weatherList=new ArrayList<>();
     public ArrayAdapter adapter;
+
+    public SharedPreferences pre;
+    public SharedPreferences.Editor editor;
 
     ListView listView;
 
@@ -76,10 +80,17 @@ public class CityActivity extends AppCompatActivity {
     }
 
     public void toastTemp(){
+        pre= PreferenceManager.getDefaultSharedPreferences(CityActivity.this);
+        editor=pre.edit();
+        editor.putBoolean("isIntent",true);
+        editor.putString("responseData",null);
+        editor.apply();
+
         WEATHER_ID=weatherList.get(ITEM_POSITION);
         Intent intent=new Intent(CityActivity.this,MainActivity.class);
         intent.putExtra("weatherCityCode",WEATHER_ID);
-        Fragment01.isIntent=true;
+//        intent.putExtra("isIntent",true);//传过去
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);//让MainActivity重新加载全部的生命周期
 //        Toast.makeText(this,WEATHER_ID,Toast.LENGTH_SHORT).show();
 
@@ -127,7 +138,7 @@ public class CityActivity extends AppCompatActivity {
 
     private void showCityData(){
         int fatherId=idList.get(ITEM_POSITION);
-        requestEnd="http://guolin.tech/api/china/"+String.valueOf(fatherId);
+        cityRequest ="http://guolin.tech/api/china/"+String.valueOf(fatherId);//初始化Url供申请County的时候使用
         MyDataBaseHelper helper=new MyDataBaseHelper(this,"weather.db",null,1);
         SQLiteDatabase db=helper.getWritableDatabase();
         Cursor cursor=db.query("cities",null,"fatherId = "+ fatherId,null,null,null,null);
@@ -149,7 +160,7 @@ public class CityActivity extends AppCompatActivity {
     }
 
     private void showCountyData(){//由于全国的县的数据，数据库无法处理，报错，所以最后采用  用到就申请的方式
-        final String request=requestEnd+"/"+String.valueOf(idList.get(ITEM_POSITION));
+        final String request= cityRequest +"/"+String.valueOf(idList.get(ITEM_POSITION));
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -208,6 +219,9 @@ public class CityActivity extends AppCompatActivity {
 //        db.close();
 //        helper.close();
     }
-
-
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        Log.d("CityActivity","onDestroy");
+    }
 }

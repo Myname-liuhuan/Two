@@ -1,6 +1,5 @@
 package com.example.two.fragment01;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +7,6 @@ import android.os.Bundle;
 
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,7 +44,7 @@ public class Fragment01 extends Fragment {
     TextView textView_pm25;
 
 
-    public static String weatherCityCode="CN101010100";
+    public  String weatherCityCode="CN101010100";
     public static String responseData;
     public static boolean isIntent=false;
 
@@ -63,9 +61,14 @@ public class Fragment01 extends Fragment {
         Log.d("Fragment01","onCreate");
         pre= PreferenceManager.getDefaultSharedPreferences(getContext());
         responseData=pre.getString("responseData",null);
+        isIntent=pre.getBoolean("isIntent",false);
         if (isIntent==true){
+            Log.d("isIntent",String.valueOf(isIntent));
             Intent intent=getActivity().getIntent();
+
+            Log.d("weatherCityCode",weatherCityCode);
             weatherCityCode=intent.getStringExtra("weatherCityCode");
+            Log.d("weatherCityCode",weatherCityCode);
         }
     }
 
@@ -129,7 +132,7 @@ public class Fragment01 extends Fragment {
     public void updateWeather(){
 
         String addressWeather="http://guolin.tech/api/weather?cityid="+weatherCityCode+"&key=33e7b04afdff480699f84ec64f1ed12b";
-        RequestHttp.sendRequest(addressWeather, new Callback() {//封装了开启线程语句
+        RequestHttp.sendRequest(addressWeather, new Callback() {//封装了开启线程操作
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -182,6 +185,7 @@ public class Fragment01 extends Fragment {
 
 
 
+
     @Override
     public void onResume() {
         super.onResume();
@@ -206,6 +210,7 @@ public class Fragment01 extends Fragment {
         Log.d("Fragment01","onDestroy");
         editor=pre.edit();
         editor.putString("responseData",responseData);
+        editor.putBoolean("isIntent",false);
         editor.apply();
     }
 
