@@ -31,12 +31,16 @@ public class ParserJSONWithGSON {
             provincesList=gson.fromJson(provinceJsonResponse,new TypeToken<List<Provinces>>(){}.getType());
             MyDataBaseHelper helper=new MyDataBaseHelper(context,"weather.db",null,1);
             SQLiteDatabase db=helper.getWritableDatabase();
+            db.beginTransaction();//开启任务后 再进行操作。(我也不知道是否是必要的)
             for (Provinces provinces:provincesList){//每个循环插入一行数据
                 ContentValues values=new ContentValues();
                 values.put("id",provinces.getId());
                 values.put("name",provinces.getName());
                 db.insert("provinces",null,values);
             }
+            db.setTransactionSuccessful();
+            db.endTransaction();
+
             db.close();
             helper.close();
         }catch (Exception e){
@@ -52,6 +56,9 @@ public class ParserJSONWithGSON {
             cityList=gson.fromJson(cityJsonResponse,new TypeToken<List<City>>(){}.getType());
             MyDataBaseHelper helper=new MyDataBaseHelper(context,"weather.db",null,1);
             SQLiteDatabase db=helper.getWritableDatabase();
+
+            db.beginTransaction();
+
             for (City city:cityList){//每个循环插入一行数据
                 ContentValues values=new ContentValues();
                 values.put("fatherId",fatherId);
@@ -60,6 +67,9 @@ public class ParserJSONWithGSON {
                 db.insert("cities",null,values);
 
             }
+            db.setTransactionSuccessful();
+            db.endTransaction();
+
             db.close();
             helper.close();
         }catch (Exception e){

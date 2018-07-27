@@ -1,5 +1,6 @@
 package com.example.two.fragment01;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.two.MainActivity;
 import com.example.two.R;
 import com.example.two.gson.ParserJSONWithGSON;
 import com.example.two.okhttp.RequestHttp;
@@ -59,7 +62,13 @@ public class Fragment01 extends Fragment {
     public void onCreate(Bundle saveInstancesState){
         super.onCreate(saveInstancesState);
         Log.d("Fragment01","onCreate");
+
         pre= PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        MainActivity.actionBar.setTitle(pre.getString("CityName","北京"));//用actionBar显示当前城市的名字。
+
+        weatherCityCode=pre.getString("weatherCityCode","CN101010100");//在这里取出当前的City代码，给下拉刷新提供条件;
+        // (接上一行注释) 如果没有此值就取北京的代码，防止第一次的时候由于没有City代码报错。
         responseData=pre.getString("responseData",null);
         isIntent=pre.getBoolean("isIntent",false);
         if (isIntent==true){
@@ -86,14 +95,15 @@ public class Fragment01 extends Fragment {
         textView_nowInformation =mView.findViewById(R.id.nowInformation);
         textView_nowTemperatureSection =mView.findViewById(R.id.nowTemperatureSection);
         textView_pm25 =mView.findViewById(R.id.pm25);
-//        SwipeRefreshLayout swipeRefresh=(SwipeRefreshLayout)mView.findViewById(R.id.swipe_refresh);
-//        //下拉刷新监听
-//        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                updateWeather();
-//            }
-//        });
+
+        SwipeRefreshLayout swipeRefresh=(SwipeRefreshLayout)mView.findViewById(R.id.swipe_refresh);
+        //下拉刷新监听
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+               updateWeather();
+            }
+        });
 
         if (responseData!=null){
             Log.d("Fragment01","responseData!=null");

@@ -80,13 +80,18 @@ public class CityActivity extends AppCompatActivity {
     }
 
     public void toastTemp(){
+
+        WEATHER_ID=weatherList.get(ITEM_POSITION);//得到当前选中的城市的代码。
+
+
         pre= PreferenceManager.getDefaultSharedPreferences(CityActivity.this);
         editor=pre.edit();
         editor.putBoolean("isIntent",true);
         editor.putString("responseData",null);
+        editor.putString("weatherCityCode",WEATHER_ID);
+        editor.putString("CityName",nameList.get(ITEM_POSITION));
         editor.apply();
 
-        WEATHER_ID=weatherList.get(ITEM_POSITION);
         Intent intent=new Intent(CityActivity.this,MainActivity.class);
         intent.putExtra("weatherCityCode",WEATHER_ID);
 //        intent.putExtra("isIntent",true);//传过去
